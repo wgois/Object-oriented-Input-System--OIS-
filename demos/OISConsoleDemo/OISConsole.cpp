@@ -57,7 +57,6 @@ void checkX11Events();
 //////////////////////////////////////////////////////////////////////
 ////////////////////////////////////Needed Mac Headers//////////////
 #elif defined OIS_APPLE_PLATFORM
-#include <Carbon/Carbon.h>
 #import <Cocoa/Cocoa.h>
 void checkMacEvents();
 #endif
@@ -502,14 +501,13 @@ void checkX11Events()
 void checkMacEvents()
 {
 	//TODO - Check for window resize events, and then adjust the members of mousestate
-	EventRef event				= NULL;
-	EventTargetRef targetWindow = GetEventDispatcherTarget();
+	NSEvent *event;
 
-	if(ReceiveNextEvent(0, NULL, kEventDurationNoWait, true, &event) == noErr)
+	while(event = [NSApp nextEventMatchingMask:NSAnyEventMask untilDate:nil inMode:NSDefaultRunLoopMode dequeue:YES])
 	{
-		SendEventToEventTarget(event, targetWindow);
-		std::cout << "Event : " << GetEventKind(event) << "\n";
-		ReleaseEvent(event);
+		[NSApp sendEvent:event];
 	}
+
+	[NSApp updateWindows];
 }
 #endif
